@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Destination Found. 📍🤍</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Library Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --space-dark: #020107;
+            --accent-gold: #d4af37;
+            --accent-pink: #ff75a0;
+            --text-light: #f1f1f1;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--space-dark);
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- Galaxy Background --- */
+        .galaxy-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            overflow: hidden;
+            transition: transform 2s ease;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: moveStar linear infinite;
+        }
+
+        @keyframes moveStar {
+            from { transform: translateY(0); }
+            to { transform: translateY(-1000px); }
+        }
+
+        /* --- Global Layout --- */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .page.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 3px;
+            color: var(--accent-gold);
+        }
+
+        /* --- Music Control --- */
+        .music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--accent-gold);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- Halaman 1: Loading & Start --- */
+        .btn-start {
+            background: none;
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 12px 30px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin-top: 30px;
+            display: none; /* Muncul setelah loading teks */
+            transition: 0.3s;
+        }
+
+        .btn-start:hover {
+            background: var(--accent-gold);
+            color: black;
+        }
+
+        .loader-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-top: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Cinematic Text --- */
+        .puitis-container {
+            font-size: 1.1rem;
+            line-height: 2.2;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        /* --- Glass Card --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 340px;
+            margin-top: 25px;
+            transform: translateY(30px);
+            transition: 0.8s;
+        }
+
+        .glass-card.show { transform: translateY(0); }
+
+        .btn-mewah {
+            background: linear-gradient(45deg, #d4af37, #f1c40f);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        /* --- Polaroid Photo --- */
+        .frame-foto {
+            width: 220px;
+            height: 250px;
+            background: white;
+            padding: 10px 10px 40px 10px;
+            border-radius: 2px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            color: #aaa;
+            font-size: 0.7rem;
+        }
+
+        .ambil-hadiah {
+            background: var(--accent-pink);
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: none;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 117, 160, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 117, 160, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 117, 160, 0); }
+        }
+
+        /* --- Misi Akhir --- */
+        .infinity-symbol {
+            font-size: 4rem;
+            color: var(--accent-gold);
+            margin: 20px 0;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Galaxy Background -->
+    <div class="galaxy-bg" id="galaxy">
+        <div id="stars"></div>
+    </div>
+
+    <!-- Music Element -->
+    <!-- GANTI LINK AUDIO DISINI (Contoh: Lagu Piano Lembut) -->
+    <audio id="bgm" loop>
+        <source src="music/kaput.mp3" type="audio/mp3">
+    </audio>
+
+    <button class="music-toggle" id="musicBtn" onclick="toggleMusic()">
+        <span id="musicIcon">♪</span>
+    </button>
+
+    <!-- Halaman 1: Loading & Start -->
+    <div id="page1" class="page active">
+        <div id="loading-ui">
+            <p style="font-family: 'Cinzel'; letter-spacing: 2px; margin-bottom: 20px;">INITIALIZING...</p>
+            <div class="loader-ring"></div>
+        </div>
+        <div id="start-ui" style="display: none;">
+            <p style="font-family: 'Cinzel'; color: var(--accent-gold);">SISTEM SIAP.</p>
+            <button class="btn-start" id="btnBegin" onclick="beginExperience()">MULAI PENGALAMAN 🎵</button>
+        </div>
+    </div>
+
+    <!-- Halaman 2: Cinematic Text -->
+    <div id="page2" class="page">
+        <div class="puitis-container" id="poetry-text"></div>
+    </div>
+
+    <!-- Halaman 3: Found Pin -->
+    <div id="page3" class="page">
+        <div id="searching-ui">
+            <p style="font-family: 'Cinzel'; color: var(--accent-gold);">MENCARI KOORDINAT...</p>
+            <div class="loader-ring"></div>
+        </div>
+
+        <div id="found-ui" style="display: none;">
+            <div style="cursor: pointer; animation: bounce 2s infinite;" onclick="revealCard()">
+                <svg width="70" height="70" viewBox="0 0 100 100">
+                    <path fill="#ff75a0" d="M50 0C32.3 0 18 14.3 18 32c0 24 32 58 32 58s32-34 32-58c0-17.7-14.3-32-32-32zm0 44c-6.6 0-12-5.4-12-12s5.4-12 12-12 12 5.4 12 12-5.4 12-12 12z"/>
+                </svg>
+            </div>
+            <h2 style="margin-top: 15px;">DITEMUKAN.</h2>
+            
+            <div id="glass-card" class="glass-card">
+                <p style="text-align: left; font-size: 0.8rem; color: var(--accent-gold); margin-bottom: 10px;">DATA SUBJEK:</p>
+                <div style="text-align: left; line-height: 1.6;">
+                    <p><strong>Nama:</strong> Keyla 🤍</p>
+                    <p><strong>Status:</strong> Orang paling berharga buat aku.</p>
+                </div>
+                <button class="btn-mewah" onclick="goDetail()">LIHAT DETAIL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Halaman 4: Detail & Photo -->
+    <div id="page4" class="page">
+        <!-- GANTI URL FOTO KEYLA DISINI -->
+        <div class="frame-foto" style="background-image: url('images/cover1.jpg');">
+        </div>
+        <div id="detail-poetry" class="puitis-container"></div>
+        
+        <button id="gift-btn" style="display: none; background: none; border: 1px solid var(--accent-gold); color: white; padding: 15px; border-radius: 10px; margin-top: 20px;" onclick="triggerGift()">
+            🎁 Aku punya sesuatu untukmu
+        </button>
+
+        <!-- GANTI LINK DANA KAGET DISINI -->
+        <a id="link-dana" href="https://link.dana.id/danakaget?c=sup559bng&r=byQOfj&orderId=20260702101214197415010300166515985684711" target="_blank" class="ambil-hadiah">💝 AMBIL HADIAH</a>
+    </div>
+
+    <!-- Halaman 5: Misi Akhir -->
+    <div id="page5" class="page">
+        <h2 style="color: var(--accent-gold);">MISI BERIKUTNYA...</h2>
+        <p style="margin-top: 10px;">Bikin Keyla bahagia selamanya.</p>
+        <div class="infinity-symbol">∞</div>
+        <button style="background: #222; color: white; border: 1px solid #444; padding: 15px 40px; border-radius: 50px;" onclick="handleHug()">🤍 PELUK AKU</button>
+        <div id="final-text" class="puitis-container" style="margin-top: 30px;"></div>
+    </div>
+
+    <script>
+        // Star Generator
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 3 + 'px';
+            star.style.width = size; star.style.height = size;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        const bgm = document.getElementById('bgm');
+        const musicBtn = document.getElementById('musicBtn');
+
+        // Logic Awal
+        setTimeout(() => {
+            document.getElementById('loading-ui').style.display = 'none';
+            document.getElementById('start-ui').style.display = 'block';
+            document.getElementById('btnBegin').style.display = 'inline-block';
+        }, 3000);
+
+        function beginExperience() {
+            bgm.play();
+            musicBtn.style.display = 'flex';
+            nextPage('page2');
+            startCinematic();
+        }
+
+        function toggleMusic() {
+            if (bgm.paused) {
+                bgm.play();
+                document.getElementById('musicIcon').innerText = '♪';
+            } else {
+                bgm.pause();
+                document.getElementById('musicIcon').innerText = 'x';
+            }
+        }
+
+        function nextPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        async function startCinematic() {
+            const textDisplay = document.getElementById('poetry-text');
+            const galaxy = document.getElementById('galaxy');
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+            galaxy.style.transform = "scale(0.6)";
+            textDisplay.innerHTML = "katanya..."; await sleep(1500);
+            textDisplay.innerHTML = "...di dunia ini..."; await sleep(1500);
+            textDisplay.innerHTML = "...ada milyaran manusia."; await sleep(2000);
+            
+            galaxy.style.transform = "scale(0.3) rotate(5deg)";
+            textDisplay.innerHTML = "aku sempat mikir..."; await sleep(1500);
+            textDisplay.innerHTML = "...di antara sebanyak itu..."; await sleep(1500);
+            textDisplay.innerHTML = "...kenapa harus kamu?"; await sleep(2000);
+
+            galaxy.style.transform = "scale(1.5) rotate(0deg)";
+            await sleep(1000);
+            
+            nextPage('page3');
+            setTimeout(() => {
+                document.getElementById('searching-ui').style.display = 'none';
+                document.getElementById('found-ui').style.display = 'block';
+            }, 3000);
+        }
+
+        function revealCard() { document.getElementById('glass-card').classList.add('show'); }
+
+        async function goDetail() {
+            nextPage('page4');
+            const textDisplay = document.getElementById('detail-poetry');
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+            textDisplay.innerHTML = "ternyata..."; await sleep(1500);
+            textDisplay.innerHTML = "...ga perlu nyari jauh."; await sleep(1500);
+            textDisplay.innerHTML = "...karena orang paling berharga buat aku..."; await sleep(1500);
+            textDisplay.innerHTML = "...udah aku temuin."; await sleep(1000);
+
+            document.getElementById('gift-btn').style.display = 'block';
+        }
+
+        async function triggerGift() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('gift-btn').style.display = 'none';
+            const textDisplay = document.getElementById('detail-poetry');
+            textDisplay.innerHTML = "semoga ini bisa bikin kamu senyum.";
+            document.getElementById('link-dana').style.display = 'inline-block';
+            window.isGiftClicked = true;
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'visible' && window.isGiftClicked) {
+                setTimeout(() => nextPage('page5'), 1000);
+            }
+        });
+
+        async function handleHug() {
+            if ("vibrate" in navigator) navigator.vibrate(200);
+            const textDisplay = document.getElementById('final-text');
+            textDisplay.innerHTML = "makasih ya udah hadir di hidup aku. 🤍";
+            confetti({ particleCount: 40, scalar: 2, emoji: ['🤍'] });
+        }
+    </script>
+</body>
+</html>
